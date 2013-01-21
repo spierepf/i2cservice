@@ -2,8 +2,6 @@
 #include <Wire.h>
 #include <Servo.h>
 
-#include <FastDelegate.h>
-
 #include "Register.h"
 #include "MemoryRegister.h"
 #include "DelegateRegister.h"
