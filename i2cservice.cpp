@@ -4,76 +4,13 @@
 
 #include <FastDelegate.h>
 
+#include "Register.h"
+#include "MemoryRegister.h"
+#include "DelegateRegister.h"
+
 using namespace fastdelegate;
 
 #define SLAVE_ADDRESS 0x29
-
-namespace I2C {
-	class Register {
-	public:
-		Register() {}
-
-		virtual size_t write(size_t remaining) = 0;
-		virtual void read() = 0;
-
-		virtual ~Register() {}
-	};
-
-	template <class X>
-	class DelegateRegister : public Register {
-		typedef FastDelegate0<X> getter;
-		typedef FastDelegate1<X> setter;
-
-		getter get;
-		setter set;
-
-	public:
-		DelegateRegister(getter g, setter s) : get(g), set(s) {
-		}
-
-		virtual size_t write(size_t remaining) {
-			if(remaining >= sizeof(X)) {
-				X value = 0;
-				for(size_t i = 0; i < sizeof(X); i++) {
-					value |= ((X)Wire.read()) << (8 * i);
-				}
-				set(value);
-				return remaining - sizeof(X);
-			} else {
-				return 0;
-			}
-		}
-
-		virtual void read() {
-			X value = get();
-			Wire.write((const uint8_t*)&value, sizeof(X));
-		}
-	};
-
-	template <class X>
-	class MemoryRegister : public Register {
-		X* value;
-
-	public:
-		MemoryRegister(X* v) : value(v) {
-		}
-
-		virtual size_t write(size_t remaining) {
-			if(remaining >= sizeof(X)) {
-				for(size_t i = 0; i < sizeof(X); i++) {
-					*value |= ((X)Wire.read()) << (8 * i);
-				}
-				return remaining - sizeof(X);
-			} else {
-				return 0;
-			}
-		}
-
-		virtual void read() {
-			Wire.write((const uint8_t*)value, sizeof(X));
-		}
-	};
-}
 
 typedef uint8_t addr_t;
 typedef uint8_t reg_t;
