@@ -30,7 +30,7 @@ namespace I2C {
 				for(size_t i = 0; i < sizeof(X); i++) {
 					value |= ((X)Wire.read()) << (8 * i);
 				}
-				set(value);
+				if(!set.empty()) set(value);
 				return remaining - sizeof(X);
 			} else {
 				return 0;
@@ -38,7 +38,7 @@ namespace I2C {
 		}
 
 		virtual void read() {
-			X value = get();
+			X value = get.empty() ? 0 : get();
 			Wire.write((const uint8_t*)&value, sizeof(X));
 		}
 	};
