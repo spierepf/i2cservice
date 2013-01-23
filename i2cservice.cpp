@@ -5,6 +5,7 @@
 #include "Register.h"
 #include "MemoryRegister.h"
 #include "DelegateRegister.h"
+#include "IdentityRegister.h"
 
 using namespace fastdelegate;
 
@@ -13,7 +14,7 @@ using namespace fastdelegate;
 typedef uint8_t addr_t;
 typedef uint8_t reg_t;
 
-const reg_t regCount = 2;
+const reg_t regCount = 3;
 I2C::Register* registers[regCount];
 
 reg_t reg;
@@ -51,8 +52,9 @@ void setup() {
 	servo.attach(9);
 	servo.writeMicroseconds(1500);
 
-	registers[0] = new I2C::DelegateRegister<int>(MakeDelegate(&servo, &Servo::readMicroseconds), MakeDelegate(&servo, &Servo::writeMicroseconds));
-	registers[1] = new I2C::MemoryRegister<int>(&someValue);
+	registers[0] = new I2C::IdentityRegister<int>(65);
+	registers[1] = new I2C::DelegateRegister<int>(MakeDelegate(&servo, &Servo::readMicroseconds), 0 /*MakeDelegate(&servo, &Servo::writeMicroseconds)*/);
+	registers[2] = new I2C::MemoryRegister<int>(&someValue);
 
 	I2CService.begin(SLAVE_ADDRESS);
 }
